@@ -1,0 +1,31 @@
+alter table public.profiles enable row level security;
+alter table public.categories enable row level security;
+alter table public.listings enable row level security;
+alter table public.listing_images enable row level security;
+alter table public.offers enable row level security;
+alter table public.messages enable row level security;
+alter table public.reviews enable row level security;
+alter table public.promotions enable row level security;
+
+alter table if exists public.messages add column if not exists listing_id uuid references public.listings(id) on delete cascade;
+alter table if exists public.messages add column if not exists sender_id uuid references public.profiles(id) on delete cascade;
+alter table if exists public.messages add column if not exists content text;
+alter table if exists public.messages add column if not exists created_at timestamptz not null default now();
+
+do $$ begin create policy "profiles public read" on public.profiles for select using (true); exception when duplicate_object then null; end $$;
+do $$ begin create policy "profiles owner update" on public.profiles for update using (auth.uid() = id) with check (auth.uid() = id); exception when duplicate_object then null; end $$;
+do $$ begin create policy "profiles owner insert" on public.profiles for insert with check (auth.uid() = id); exception when duplicate_object then null; end $$;
+do $$ begin create policy "categories public read" on public.categories for select using (true); exception when duplicate_object then null; end $$;
+do $$ begin create policy "active listings public read" on public.listings for select using (status in ('active','closed','completed') or owner_id = auth.uid()); exception when duplicate_object then null; end $$;
+do $$ begin create policy "listing owner insert" on public.listings for insert with check (auth.uid() = owner_id); exception when duplicate_object then null; end $$;
+do $$ begin create policy "listing owner update" on public.listings for update using (auth.uid() = owner_id) with check (auth.uid() = owner_id); exception when duplicate_object then null; end $$;
+do $$ begin create policy "listing images public read" on public.listing_images for select using (exists (select 1 from public.listings l where l.id = listing_id and l.status in ('active','closed','completed'))); exception when duplicate_object then null; end $$;
+do $$ begin create policy "listing images owner write" on public.listing_images for all using (exists (select 1 from public.listings l where l.id = listing_id and l.owner_id = auth.uid())) with check (exists (select 1 from public.listings l where l.id = listing_id and l.owner_id = auth.uid())); exception when duplicate_object then null; end $$;
+do $$ begin create policy "offers participants read" on public.offers for select using (sender_id = auth.uid() or exists (select 1 from public.listings l where l.id = listing_id and l.owner_id = auth.uid())); exception when duplicate_object then null; end $$;
+do $$ begin create policy "offers authenticated insert" on public.offers for insert with check (auth.uid() = sender_id and not exists (select 1 from public.listings l where l.id = listing_id and l.owner_id = auth.uid())); exception when duplicate_object then null; end $$;
+do $$ begin create policy "offers listing owner update" on public.offers for update using (exists (select 1 from public.listings l where l.id = listing_id and l.owner_id = auth.uid())); exception when duplicate_object then null; end $$;
+do $$ begin create policy "messages participants read" on public.messages for select using (sender_id = auth.uid() or exists (select 1 from public.offers o where o.listing_id = messages.listing_id and o.sender_id = auth.uid())); exception when duplicate_object then null; end $$;
+do $$ begin create policy "messages participants insert" on public.messages for insert with check (auth.uid() = sender_id); exception when duplicate_object then null; end $$;
+do $$ begin create policy "reviews public read" on public.reviews for select using (true); exception when duplicate_object then null; end $$;
+do $$ begin create policy "reviews related insert" on public.reviews for insert with check (auth.uid() = reviewer_id); exception when duplicate_object then null; end $$;
+do $$ begin create policy "promotions owner all" on public.promotions for all using (auth.uid() = user_id) with check (auth.uid() = user_id); exception when duplicate_object then null; end $$;

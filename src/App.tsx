@@ -7,11 +7,12 @@ import { ListingDetail } from './components/ListingDetail';
 import { AppLayout } from './components/AppLayout';
 import { ProviderCard, ProviderSidebar } from './components/Providers';
 import { Badge, Button, Card, EmptyState, Toast } from './components/ui';
-import { go } from './lib/utils';
+import { basePath, go } from './lib/utils';
 
 import { getAllListings, getAllProviderProfiles, getListingById, getMyListings, getMyOffers, getProfile, resetDemoData, setCurrentUser } from './services/marketplace';
 import { toast } from './lib/toast';
-function usePath(){ const [path,setPath]=useState(location.pathname+location.search); useEffect(()=>{ const f=()=>setPath(location.pathname+location.search); addEventListener('popstate',f); return()=>removeEventListener('popstate',f)},[]); return path; }
+function currentAppPath(){ const base=basePath(); const pathname=base && location.pathname.startsWith(base) ? location.pathname.slice(base.length) || '/' : location.pathname; return pathname + location.search; }
+function usePath(){ const [path,setPath]=useState(currentAppPath()); useEffect(()=>{ const f=()=>setPath(currentAppPath()); addEventListener('popstate',f); return()=>removeEventListener('popstate',f)},[]); return path; }
 export default function App(){ const path=usePath(); return <AppLayout><Toast/><Router path={path}/></AppLayout> }
 function Home(){ return <><HeroSection/><div className="mx-auto grid max-w-7xl gap-6 px-4 lg:grid-cols-[1fr_360px]"><div><HotListingsSection/></div><ProviderSidebar/></div><SmartCategoriesSection/><ClassicCategoriesSection/><WeeklyListings/><Ad/></> }
 function Listings(){ const params=new URLSearchParams(location.search); const group=params.get('grup') as any; const q=params.get('q')||''; const listings=useMemo(()=>getAllListings({group:group==='smart'||group==='classic'?group:undefined,q}),[group,q,location.search]); return <section className="mx-auto max-w-7xl px-4 py-8"><h1 className="font-serif text-4xl font-bold text-zs-primary">Sıcak Talepler</h1><p className="text-zs-muted">Akıllı ve klasik talepleri filtrele.</p><div className="mt-4 flex flex-wrap gap-2"><Button variant={!group?'primary':'secondary'} onClick={()=>go('/ilanlar')}>Tümü</Button><Button variant={group==='smart'?'primary':'secondary'} onClick={()=>go('/ilanlar?grup=smart')}>Akıllı İşler</Button><Button variant={group==='classic'?'primary':'secondary'} onClick={()=>go('/ilanlar?grup=classic')}>Klasik Hizmetler</Button></div><Ad/><div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{listings.map(l=><HotListingCard key={l.id} listing={l}/>)}</div>{listings.length===0&&<EmptyState title="Aradığın kriterlere uygun talep bulunamadı." action={<Button onClick={()=>go('/talep-olustur')}>Talep Oluştur</Button>}/>}</section> }
