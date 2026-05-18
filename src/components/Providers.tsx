@@ -1,7 +1,29 @@
 import { MapPin, Star, UserRound } from 'lucide-react';
 import type { Profile } from '../types';
 import { go, money } from '../lib/utils';
+import { useAsyncValue } from '../lib/useAsyncValue';
 import { getProviderProfiles } from '../services/marketplace';
-import { Badge, Button, Card, EmptyState } from './ui';
-export function ProviderCard({profile}:{profile:Profile}){ return <Card onClick={()=>go('/u/'+profile.id)} className="cursor-pointer p-4 transition hover:-translate-y-1 hover:shadow-soft"><div className="flex items-start gap-3"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-zs-primary/10 text-zs-primary"><UserRound/></div><div><h3 className="font-bold text-zs-primary">{profile.full_name}</h3><p className="text-sm text-zs-muted">{profile.provider_title}</p></div></div><div className="mt-3 flex flex-wrap gap-2">{profile.price_from&&<Badge className="bg-zs-accent/15 text-zs-accent">{money(profile.price_from)}’den</Badge>}<Badge className="bg-zs-primary/10 text-zs-primary">{profile.rating?<><Star size={13}/>{profile.rating}</>:'Yeni üye'}</Badge><Badge className="bg-white text-zs-muted"><MapPin size={13}/>{profile.city||'Online'}</Badge></div><div className="mt-3 flex flex-wrap gap-1">{profile.skills.slice(0,3).map(s=><span className="rounded-full bg-zs-bg px-2 py-1 text-xs" key={s}>{s}</span>)}</div></Card> }
-export function ProviderSidebar(){ const providers=getProviderProfiles(); return <aside className="rounded-[24px] border border-zs-primary/10 bg-white/75 p-5 shadow-sm"><div className="mb-4 flex items-start justify-between"><div><h2 className="font-serif text-3xl font-bold text-zs-primary">Çözüm Verenler</h2><p className="text-sm text-zs-muted">Talep beklemeden tanış.</p></div><button onClick={()=>go('/cozum-verenler')} className="text-sm font-bold text-zs-accent">Tümü</button></div>{providers.length===0?<EmptyState title="Henüz çözüm veren yok. İlk olmak ister misin?" action={<Button onClick={()=>go('/profilim')}>Profilini Aç</Button>}/>:<div className="grid gap-3">{providers.map(p=><ProviderCard key={p.id} profile={p}/>)}</div>}</aside> }
+import { Badge, Button, Card, EmptyState, LoadingSkeleton } from './ui';
+
+export function ProviderCard({ profile }: { profile: Profile }) {
+  return (
+    <Card onClick={() => go('/u/' + profile.id)} className="cursor-pointer p-4 transition hover:-translate-y-1 hover:shadow-soft">
+      <div className="flex items-start gap-3">
+        {profile.avatar_url ? <img src={profile.avatar_url} alt="" className="h-12 w-12 shrink-0 rounded-full object-cover" /> : <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-zs-primary/10 text-zs-primary"><UserRound /></div>}
+        <div><h3 className="font-bold text-zs-primary">{profile.full_name}</h3><p className="text-sm text-zs-muted">{profile.provider_title}</p></div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">{profile.price_from && <Badge className="bg-zs-accent/15 text-zs-accent">{money(profile.price_from)}’den</Badge>}<Badge className="bg-zs-primary/10 text-zs-primary">{profile.rating ? <><Star size={13} />{profile.rating}</> : 'Yeni üye'}</Badge><Badge className="bg-white text-zs-muted"><MapPin size={13} />{profile.city || 'Online'}</Badge></div>
+      <div className="mt-3 flex flex-wrap gap-1">{profile.skills.slice(0, 3).map((s) => <span className="rounded-full bg-zs-bg px-2 py-1 text-xs" key={s}>{s}</span>)}</div>
+    </Card>
+  );
+}
+
+export function ProviderSidebar() {
+  const { value: providers, loading } = useAsyncValue(getProviderProfiles, [], [] as Profile[]);
+  return (
+    <aside className="rounded-[24px] border border-zs-primary/10 bg-white/75 p-5 shadow-sm">
+      <div className="mb-4 flex items-start justify-between"><div><h2 className="font-serif text-3xl font-bold text-zs-primary">Çözüm Verenler</h2><p className="text-sm text-zs-muted">Talep beklemeden tanış.</p></div><button onClick={() => go('/cozum-verenler')} className="text-sm font-bold text-zs-accent">Tümü</button></div>
+      {loading ? <LoadingSkeleton /> : providers.length === 0 ? <EmptyState title="Henüz çözüm veren yok. İlk olmak ister misin?" action={<Button onClick={() => go('/profilim')}>Profilini Aç</Button>} /> : <div className="grid gap-3">{providers.map((p) => <ProviderCard key={p.id} profile={p} />)}</div>}
+    </aside>
+  );
+}
