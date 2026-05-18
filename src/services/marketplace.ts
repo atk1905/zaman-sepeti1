@@ -149,7 +149,8 @@ export const getCategories = async (): Promise<Category[]> => {
   if (!supabase) return fallbackCategories;
   const { data, error } = await supabase.from('categories').select('*').order('group').order('sort_order');
   if (error) throw error;
-  return (data ?? []).map(normalizeCategory);
+  const remote = (data ?? []).map(normalizeCategory);
+  return fallbackCategories.map((fallback) => remote.find((c) => c.slug === fallback.slug || c.name === fallback.name) ?? fallback);
 };
 
 export const getCategoriesByGroup = async (group: CategoryGroup) => (await getCategories()).filter((c) => c.group === group).sort((a, b) => a.sort_order - b.sort_order);
