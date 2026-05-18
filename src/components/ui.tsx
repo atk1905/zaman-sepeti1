@@ -1,0 +1,11 @@
+import { X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { cn } from '../lib/utils';
+import { subscribeToast } from '../lib/toast';
+export const Button = ({className='', variant='primary', ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> & {variant?:'primary'|'secondary'|'ghost'|'danger'}) => <button className={cn('inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-zs-accent disabled:opacity-50', variant==='primary'&&'bg-zs-primary text-white hover:-translate-y-0.5 hover:shadow-soft', variant==='secondary'&&'bg-white text-zs-primary border border-zs-primary/15 hover:bg-zs-bg', variant==='ghost'&&'text-zs-primary hover:bg-white/70', variant==='danger'&&'bg-zs-urgent text-white', className)} {...props}/>;
+export const Card = ({className='', ...props}: React.HTMLAttributes<HTMLDivElement>) => <div className={cn('rounded-card border border-zs-primary/10 bg-white/82 shadow-sm', className)} {...props}/>;
+export const Badge = ({className='', ...props}: React.HTMLAttributes<HTMLSpanElement>) => <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold', className)} {...props}/>;
+export const EmptyState = ({title, action}:{title:string; action?:React.ReactNode}) => <Card className="p-6 text-center text-zs-muted"><p>{title}</p>{action&&<div className="mt-4">{action}</div>}</Card>;
+export const LoadingSkeleton = () => <div className="animate-pulse rounded-card bg-zs-primary/10 h-36"/>;
+export const ConfirmDialog = ({children}:{children:React.ReactNode}) => <>{children}</>;
+export const Toast = () => { const [msg,setMsg]=useState(''); useEffect(()=>{ return subscribeToast((m)=>{setMsg(m); window.setTimeout(()=>setMsg(''),3000)}); },[]); if(!msg) return null; return <div role="status" className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-xl bg-zs-primary px-5 py-3 text-white shadow-soft"><span>{msg}</span><button aria-label="Kapat" onClick={()=>setMsg('')}><X size={16}/></button></div> };

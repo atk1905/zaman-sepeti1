@@ -1,0 +1,8 @@
+import * as Icons from 'lucide-react';
+import type { Category } from '../types';
+import { go } from '../lib/utils';
+import { getCategoriesByGroup } from '../services/marketplace';
+import { Card } from './ui';
+export function CategoryCard({category,premium=false}:{category:Category;premium?:boolean}){ const Icon=(Icons as any)[category.icon] ?? Icons.Circle; return <Card onClick={()=>go('/ilanlar?grup='+category.group)} className={(premium?'bg-gradient-to-br from-zs-accent/15 to-white p-6':'p-4')+' cursor-pointer transition hover:-translate-y-1 hover:shadow-soft'}><div className="grid h-11 w-11 place-items-center rounded-xl bg-zs-primary text-white"><Icon size={21}/></div><h3 className="mt-4 font-bold text-zs-primary">{category.name}</h3></Card> }
+export function SmartCategoriesSection(){ return <section className="mx-auto max-w-7xl px-4 py-10"><h2 className="font-serif text-4xl font-bold text-zs-primary">Akıllı İşler</h2><p className="mt-1 text-zs-muted">AI çağının yeni iş türleri — yapay zekayla saatler içinde bitirilen işler.</p><div className="mt-5 grid gap-4 md:grid-cols-3 lg:grid-cols-4">{getCategoriesByGroup('smart').map(c=><CategoryCard key={c.id} category={c} premium/>)}</div></section> }
+export function ClassicCategoriesSection(){ return <section className="mx-auto max-w-7xl px-4 py-10"><h2 className="font-serif text-3xl font-bold text-zs-primary">Klasik Hizmetler</h2><p className="text-zs-muted">Klasik pazaryeri kategorileri.</p><div className="mt-5 grid gap-3 md:grid-cols-3 lg:grid-cols-4">{getCategoriesByGroup('classic').map(c=><CategoryCard key={c.id} category={c}/>)}</div></section> }
