@@ -227,12 +227,16 @@ export const getHotListings = async () => {
 export const getWeeklyListings = async () => {
   const remote = await selectListings();
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  return (remote ?? getDb().listings.map((l) => hydrate(l))).filter((l) => new Date(l.created_at).getTime() >= weekAgo).slice(0, 8);
+  return (remote ?? getDb().listings.map((l) => hydrate(l)))
+    .filter((l) => l.status === 'active')
+    .filter((l) => new Date(l.created_at).getTime() >= weekAgo)
+    .slice(0, 8);
 };
 
 export const getAllListings = async (params?: { group?: CategoryGroup; q?: string }) => {
   const remote = await selectListings();
   return (remote ?? getDb().listings.map((l) => hydrate(l)))
+    .filter((l) => l.status === 'active')
     .filter((l) => (params?.group ? l.category.group === params.group : true))
     .filter((l) => (params?.q ? (l.title + l.description + l.category.name).toLocaleLowerCase('tr').includes(params.q.toLocaleLowerCase('tr')) : true))
     .sort(byCreatedDesc);
