@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
+    "test:smoke": "vitest run src/App.smoke.test.tsx",
     "test:ui": "vitest --environment jsdom"
   },
   "dependencies": {

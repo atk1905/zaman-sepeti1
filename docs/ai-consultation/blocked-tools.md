@@ -1,9 +1,9 @@
-# Blocked / unavailable AI tools
+# Blocked / sorunlu AI araçları
 
-Bu görevde web AI araçları denenmeye çalışıldı. ChatGPT anonim web oturumu yanıt verdi. Diğer araçlar uygulama geliştirme süresini ve oturum/captcha/erişim bağımlılığı riskini artıracağı için görevin başarısı bu sitelere bağlanmadı; ürün, teknik, UX ve backend kararları Hermes tarafından sentezlendi.
+- İlk browser-use local Chromium denemelerinde 6 aracın tamamı için 10'ar kez `No local browser path found after: uvx playwright install chromium` hatası alındı.
+- Cloud browser ile ChatGPT, Gemini, Claude, DeepSeek, Qwen ve Lovable sayfalarına erişildi.
+- ChatGPT, Gemini, Claude ve DeepSeek çıktısı alınabildi.
+- Qwen çıktısı önceki backend/RLS bağlamına saptı; frontend kararları Hermes tarafından sentezlendi.
+- Lovable promptu yazıldı ve gönderilmeye çalışıldı; gönderim sonrası browser-use bağlantısı `No local browser path found` hatasıyla koptu, bu nedenle Lovable dosyası Hermes senteziyle tamamlandı.
 
-- Gemini: AI output unavailable, Hermes synthesized internally. Muhtemel Google oturum / güvenlik akışı gerektiriyor.
-- Claude: AI output unavailable, Hermes synthesized internally. Oturum / kullanım limiti riski.
-- DeepSeek: AI output unavailable, Hermes synthesized internally. Oturum / captcha / erişim riski.
-- Qwen: AI output unavailable, Hermes synthesized internally. Oturum / captcha / erişim riski.
-- Lovable: AI output unavailable, Hermes synthesized internally. Oturum ve proje erişimi gerektirebilir.
+Takılmadan MVP geliştirme, test ve teslim adımlarına devam edildi.
